@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
-  <title>基于语义分析的Jsonp劫持检测 - jweny`s Blog | Security &amp; Develop</title>
+  <title>设计API需要注意的一些安全问题 - jweny`s Blog | Security &amp; Develop</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
 
@@ -162,7 +162,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="基于语义分析的Jsonp劫持检测">
+            <span class="h2" id="subtitle" title="设计API需要注意的一些安全问题">
               
             </span>
 
@@ -172,8 +172,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2020-08-29 16:02" pubdate>
-        2020年8月29日 下午
+      <time datetime="2020-06-04 19:14" pubdate>
+        2020年6月4日 晚上
       </time>
     </span>
   
@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      474 字
+      943 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      11
        分钟
     </span>
   
@@ -224,43 +224,91 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">基于语义分析的Jsonp劫持检测</h1>
+            <h1 style="display: none">设计API需要注意的一些安全问题</h1>
             
             <div class="markdown-body">
-              <h1 id="基于AST的JSONP劫持漏洞检测"><a href="#基于AST的JSONP劫持漏洞检测" class="headerlink" title="基于AST的JSONP劫持漏洞检测"></a>基于AST的JSONP劫持漏洞检测</h1><h2 id="0x01-JSONP劫持简介"><a href="#0x01-JSONP劫持简介" class="headerlink" title="0x01 JSONP劫持简介"></a><strong>0x01 JSONP劫持简介</strong></h2><ul>
-<li>敏感信息泄露引发的精准诈骗。</li>
-<li>防守方的溯源能力之一，获取攻击者画像。</li>
-</ul>
-<h2 id="0x02-基于AST的JSONP劫持检测"><a href="#0x02-基于AST的JSONP劫持检测" class="headerlink" title="0x02 基于AST的JSONP劫持检测"></a><strong>0x02 基于AST的JSONP劫持检测</strong></h2><p>检测思路来源于xray核心开发者Koalr师傅  <a target="_blank" rel="noopener" href="https://koalr.me/post/a-tour-of-xray/">https://koalr.me/post/a-tour-of-xray/</a> 的分享。</p>
-<p>在 AST 层面的统一和一致，给我们的分析过程带来了极大的遍历，使我们可以很轻易的解决下面几种 case</p>
-<pre><code class="hljs js">callback(&#123;<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;xray&quot;</span>&#125;);
-callback(&#123;<span class="hljs-string">&quot;data&quot;</span>: &#123;<span class="hljs-attr">username</span>:<span class="hljs-string">&quot;xray&quot;</span>&#125;&#125;);
-<span class="hljs-comment">/*aa*/</span> <span class="hljs-built_in">window</span>.cb &amp;&amp; <span class="hljs-built_in">window</span>.cb(&#123;<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;xray&quot;</span>&#125;)
-callback([&#123;<span class="hljs-string">&quot;info&quot;</span>: &#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;array&quot;</span>&#125;&#125;])
-cb(<span class="hljs-string">&#x27;  &#123;&quot;username&quot;:&quot;xray&quot;&#125;  &#x27;</span>)
-a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;xray&quot;</span>&#125;; cb(&#123;<span class="hljs-string">&quot;s&quot;</span>: a&#125;)</code></pre>
-
-<p>至此 jsonp 的检测可以说找到了一种相对完美的解决方案，误报的数量处于完全可接受的状态，漏报一般丰富一下敏感信息关键字就可以解决，jsonp 的介绍到此为止。</p>
-<p>我通过golang实现了一版，感兴趣的可以看下：<a target="_blank" rel="noopener" href="https://github.com/jweny/check_jsonp_based_on_ast">https://github.com/jweny/check_jsonp_based_on_ast</a></p>
-<p>本组件未单独提供爬虫，须结合爬虫使用（推荐crawlergo）。</p>
-<h2 id="0x03-核心逻辑"><a href="#0x03-核心逻辑" class="headerlink" title="0x03 核心逻辑"></a><strong>0x03 核心逻辑</strong></h2><ol>
-<li><p>解析js路径，检查query所有key是否满足正则 (?m)(?i)(callback)|(jsonp)|(^cb$)|(function)</p>
-</li>
-<li><p>referer配置为同域，请求js获取响应</p>
-</li>
-<li><p>js响应生成AST，如果满足</p>
-<p>a) Callee.Name == callback函数名</p>
-<p>b) 递归遍历AST 获取所有的字段和对应的value</p>
-<p>c) 字段为敏感字段（满足正则(?m)(?i)(uid)|(userid)|(user_id)|(nin)|(name)|(username)|(nick)），且value不为空</p>
-</li>
-<li><p>替换Referer后再请求一次，重新验证步骤3</p>
-</li>
+              <h1 id="设计API-需要注意的安全问题"><a href="#设计API-需要注意的安全问题" class="headerlink" title="设计API 需要注意的安全问题"></a>设计API 需要注意的安全问题</h1><hr>
+<h2 id="1-身份认证"><a href="#1-身份认证" class="headerlink" title="1 身份认证"></a>1 身份认证</h2><ol>
+<li>使用标准的认证协议（如 <a target="_blank" rel="noopener" href="https://jwt.io/">JWT</a>，<a target="_blank" rel="noopener" href="https://oauth.net/">OAuth</a>），不要使用 <code>Basic Auth</code> 。</li>
+<li>限制密码错误尝试次数。</li>
+<li>密码加密传输。</li>
+<li>验证码验证一次后立即失效。</li>
 </ol>
-<h2 id="0x04-调用方式"><a href="#0x04-调用方式" class="headerlink" title="0x04 调用方式"></a><strong>0x04 调用方式</strong></h2><p>提供了一个jsonp的漏洞环境，如需自取。</p>
-<p>入参：js uri</p>
-<p>返回：是否存在漏洞，err</p>
-<p>例：</p>
-<pre><code>result, err := CheckSenseJsonp(&quot;http://127.0.0.1/jsonp_env/getUser.php?id=1&amp;jsoncallback=callbackFunction&quot;)</code></pre>
+<h3 id="1-1-JWT"><a href="#1-1-JWT" class="headerlink" title="1.1  JWT"></a>1.1  JWT</h3><ol>
+<li>不要自己实现生成token的算法（无法确保安全性），请使用标准库。</li>
+<li>使用标准的认证请求头。不要在 URL 中携带任何敏感的数据（<code>credentials</code>，<code>Passwords</code>，<code>security tokens</code>，or <code>API keys</code>）。</li>
+<li>使用随机复杂的密钥（<code>JWT Secret</code>）以增加暴力破解的难度。</li>
+<li>不要在 JWT 的请求体中存放敏感数据，因为它是<a target="_blank" rel="noopener" href="https://jwt.io/#debugger-io">可解码的</a>。</li>
+<li>token的过期时间尽可能短。主动退出时，立即清除token。</li>
+</ol>
+<h2 id="2-权限校验"><a href="#2-权限校验" class="headerlink" title="2 权限校验"></a>2 权限校验</h2><ol>
+<li>每个接口都应严格校验请求内容与token所有者的权限。</li>
+<li><strong>平行越权</strong>：普通用户A 查看 普通用户B的资产信息。例如<code>/asset/111/</code>接口没有校验当前token是否为该资产所有者，通过修改id即可遍历所有资产。</li>
+<li><strong>垂直越权</strong>：普通用户A 提权为管理员。接口反序列化时，只接受必要的字段，不要将所有用户输入字段均反序列化入库。如个人信息编辑接口，直接修改 id / role / permission， 或添加某些字段，将自己修改为管理员。 </li>
+</ol>
+<h2 id="3-接口滥用"><a href="#3-接口滥用" class="headerlink" title="3 接口滥用"></a>3 接口滥用</h2><ol>
+<li>敏感接口限制请求频率，来防止 DoS 攻击 / 其他爆破攻击。如：</li>
+</ol>
+<ul>
+<li>短信验证码</li>
+<li>登录</li>
+<li>大文件下载</li>
+<li>构建Docker镜像 / 启动容器</li>
+</ul>
+<ol start="2">
+<li>如果不知道频率要限为多少，那就先定个默认值，根据实际情况做调整，不要放任不管。</li>
+<li>如果接口逻辑复杂或数据处理量很大，尽可能使用队列异步处理来避免阻塞请求，从而快速响应客户端。</li>
+<li>不用的接口 / 测试接口，上线前必须下掉。</li>
+</ol>
+<h2 id="4-逻辑"><a href="#4-逻辑" class="headerlink" title="4 逻辑"></a>4 逻辑</h2><ol>
+<li><strong>所有的接口都必须包含身份认证和权限校验。</strong></li>
+<li>使用 HTTPS。</li>
+<li>避免使用自增长 id，使用 <code>UUID</code> 代替自增长的 id，尽量使用 <code>/me/orders</code> 替代 <code>/user/123/orders</code>。</li>
+<li>关闭DEBUG 模式。</li>
+</ol>
+<h2 id="5-处理请求"><a href="#5-处理请求" class="headerlink" title="5 处理请求"></a>5 处理请求</h2><ol>
+<li>限制HTTP请求方法（<code>GET / POST / PUT / DELETE</code>），如果请求的方法不适用，返回 <code>405 Method Not Allowed</code>。登录、注册、重置密码等涉及用户敏感信息的操作，接口必须使用POST方法，不要接受GET方法的请求。</li>
+<li>限制 <code>content-type</code> 请求头 ，只允许支持的格式（如 <code>application/xml</code>，<code>application/json</code> 等），并在不满足条件的时候返回 <code>406 Not Acceptable</code>。</li>
+<li>验证 <code>content-type</code> 中申明的格式和请求正文的格式是否一致。</li>
+<li>严格验证 / 控制用户的输入，来避免一些通用漏洞（如 <code>XSS</code>，<code>SQL注入</code>，<code>远程代码执行</code>，文件上传 等等）。</li>
+</ol>
+<ul>
+<li>SQL注入：</li>
+</ul>
+<pre><code class="hljs go"><span class="hljs-comment">// 错误写法：直接拼接</span>
+customerId := r.URL.Query().Get(<span class="hljs-string">&quot;id&quot;</span>)
+query := <span class="hljs-string">&quot;SELECT number, expireDate, cvv FROM creditcards WHERE customerId = &quot;</span> + customerId
+<span class="hljs-comment">// SELECT number, expireDate, cvv FROM creditcards WHERE customerId = 1 OR 1=1</span></code></pre>
+
+<pre><code class="hljs go"><span class="hljs-comment">// 正确写法：预编译</span>
+ctx := context.Background()
+customerId := r.URL.Query().Get(<span class="hljs-string">&quot;id&quot;</span>)
+<span class="hljs-comment">// mysql 占位符 ?</span>
+query := <span class="hljs-string">&quot;SELECT number, expireDate, cvv FROM creditcards WHERE customerId = ?&quot;</span>
+stmt, _ := db.QueryContext(ctx, query, customerId)</code></pre>
+
+<ul>
+<li>XSS：</li>
+</ul>
+<pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>tech.meituan.com<span class="hljs-regexp">/2018/</span><span class="hljs-number">09</span><span class="hljs-regexp">/27/</span>fe-security.html</code></pre>
+
+<ul>
+<li>命令执行：</li>
+</ul>
+<pre><code class="hljs gcode">comma<span class="hljs-symbol">nd1</span> &amp;&amp; comma<span class="hljs-symbol">nd2</span>  先执行comma<span class="hljs-symbol">nd1</span>后执行comma<span class="hljs-symbol">nd2</span>
+comma<span class="hljs-symbol">nd1</span> | comma<span class="hljs-symbol">nd2</span>   只执行comma<span class="hljs-symbol">nd2</span>
+comma<span class="hljs-symbol">nd1</span> &amp; comma<span class="hljs-symbol">nd2</span>	先执行comma<span class="hljs-symbol">nd2</span>后执行comma<span class="hljs-symbol">nd1</span></code></pre>
+
+<ul>
+<li>文件上传：</li>
+</ul>
+<pre><code class="hljs lasso">严格校验文件格式。处理<span class="hljs-built_in">xml</span>文件时，注意xxe漏洞。条件允许的情况下，禁止外部dtd。</code></pre>
+
+<h2 id="6-处理响应"><a href="#6-处理响应" class="headerlink" title="6 处理响应"></a>6 处理响应</h2><ol>
+<li>删除响应中的指纹。如 <code>X-Powered-By</code>，<code>Server</code>，<code>X-AspNet-Version</code> 等。</li>
+<li>遵循请求的 <code>content-type</code>。如果请求类型是 <code>application/json</code> 那么响应 <code>content-type</code> 就是 <code>application/json</code>。</li>
+<li>统一的4xx / 5xx 页面：不返回具体的报错信息。</li>
+</ol>
 
             </div>
             <hr>
@@ -270,7 +318,7 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E6%A3%80%E6%B5%8B/">检测</a>
+                      <a class="hover-with-bg" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
                     
                   </div>
                 
@@ -278,7 +326,7 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Jsonp/">Jsonp</a>
+                      <a class="hover-with-bg" href="/tags/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
                     
                   </div>
                 
@@ -289,21 +337,15 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2020/10/13/Tomcat%20%E5%86%85%E5%AD%98%E9%A9%AC%E6%A3%80%E6%B5%8B/">
+                      <a href="/2020/06/29/%E7%BB%99Blog%E6%8D%A2%E4%B8%AA%E7%9A%AE%E8%82%A4/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Tomcat 内存马检测</span>
+                        <span class="hidden-mobile">给Blog换个皮肤</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/2020/06/29/%E7%BB%99Blog%E6%8D%A2%E4%B8%AA%E7%9A%AE%E8%82%A4/">
-                        <span class="hidden-mobile">给Blog换个皮肤</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
