@@ -4,13 +4,25 @@
   
   
   <entry>
-    <title></title>
+    <title>（CVE-2020-17518）通过REST API写入远程文件</title>
     <link href="/2021/01/06/Flink%20CVE-2020-17518&amp;CVE-2020-17519/"/>
     <url>/2021/01/06/Flink%20CVE-2020-17518&amp;CVE-2020-17519/</url>
     
     <content type="html"><![CDATA[<h1 id="（CVE-2020-17518）通过REST-API写入远程文件"><a href="#（CVE-2020-17518）通过REST-API写入远程文件" class="headerlink" title="（CVE-2020-17518）通过REST API写入远程文件"></a>（CVE-2020-17518）通过REST API写入远程文件</h1><h2 id="1-漏洞描述"><a href="#1-漏洞描述" class="headerlink" title="1. 漏洞描述"></a>1. 漏洞描述</h2><p>Flink 1.5.1引入了REST API，可通过恶意修改的HTTP HEADER，将任意文件复制到文件系统的任意位置。</p><h2 id="2-漏洞影响版本"><a href="#2-漏洞影响版本" class="headerlink" title="2. 漏洞影响版本"></a>2. 漏洞影响版本</h2><p>受影响的版本：<br>Flink 1.5.1-1.11.2</p><p>安全版本：<br>Flink 1.11.3或Flink 1.12.0</p><h2 id="3-漏洞复现"><a href="#3-漏洞复现" class="headerlink" title="3. 漏洞复现"></a>3. 漏洞复现</h2><p>测试环境： <a href="https://github.com/vulhub/vulhub/tree/master/flink/CVE-2020-17518">https://github.com/vulhub/vulhub/tree/master/flink/CVE-2020-17518</a></p><p><img src="/Users/lucifer/things/blog/source/img/image-20210106115800473.png" alt="image-20210106115800473"></p><p>写入文件/tmp/success，内容为success</p><p><img src="/Users/lucifer/things/blog/source/img/image-20210106115840953.png" alt="image-20210106115840953"></p><p><img src="/Users/lucifer/things/blog/source/img/image-20210106115825185.png" alt="image-20210106115825185"></p><h1 id="（CVE-2020-17519）Flink-jobmanage目录穿越"><a href="#（CVE-2020-17519）Flink-jobmanage目录穿越" class="headerlink" title="（CVE-2020-17519）Flink-jobmanage目录穿越"></a>（CVE-2020-17519）Flink-jobmanage目录穿越</h1><h2 id="1-漏洞描述-1"><a href="#1-漏洞描述-1" class="headerlink" title="1. 漏洞描述"></a>1. 漏洞描述</h2><p>Apache Flink 1.11.0-1.11.2中引入的一项更改，允许攻击者通过JobManager进程的REST接口读取本地文件系统上的任何文件，访问仅限于JobManager进程可访问的文件。</p><h2 id="2-漏洞影响版本-1"><a href="#2-漏洞影响版本-1" class="headerlink" title="2. 漏洞影响版本"></a>2. 漏洞影响版本</h2><p>受影响的版本：<br>1.11.0、1.11.1、1.11.2</p><p>安全版本：<br>Flink 1.11.3或Flink 1.12.0</p><h2 id="3-漏洞复现-1"><a href="#3-漏洞复现-1" class="headerlink" title="3. 漏洞复现"></a>3. 漏洞复现</h2><p>测试环境： <a href="https://github.com/vulhub/vulhub/tree/master/flink/CVE-2020-17519">https://github.com/vulhub/vulhub/tree/master/flink/CVE-2020-17519</a></p><p><img src="/Users/lucifer/things/blog/source/img/image-20210106115913065.png" alt="image-20210106115913065"></p>]]></content>
     
     
+    <categories>
+      
+      <category>漏洞</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>漏洞复现</tag>
+      
+    </tags>
     
   </entry>
   
