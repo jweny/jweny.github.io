@@ -15,7 +15,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="description" content="">
-  <meta name="author" content="John Doe">
+  <meta name="author" content="jweny">
   <meta name="keywords" content="">
   <title>基于语义分析的Jsonp劫持检测 - jweny`s Blog | Security &amp; Develop</title>
 
@@ -201,6 +201,14 @@
 
   
   
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
 </div>
 
             
@@ -225,6 +233,12 @@
           <article class="post-content mx-auto">
             <!-- SEO header -->
             <h1 style="display: none">基于语义分析的Jsonp劫持检测</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：19 分钟前
+                
+              </p>
             
             <div class="markdown-body">
               <h1 id="基于AST的JSONP劫持自动化挖掘-带工具"><a href="#基于AST的JSONP劫持自动化挖掘-带工具" class="headerlink" title="基于AST的JSONP劫持自动化挖掘(带工具)"></a>基于AST的JSONP劫持自动化挖掘(带工具)</h1><h2 id="0x01-JSONP劫持简介"><a href="#0x01-JSONP劫持简介" class="headerlink" title="0x01 JSONP劫持简介"></a><strong>0x01 JSONP劫持简介</strong></h2><p>JSONP利用 <code>&lt;script&gt;</code> 标签的跨域能力实现跨域数据的访问。请求动态生成的JS脚本同时带一个callback函数名作为参数。服务端收到请求后，动态生成脚本产生数据，并在代码中以产生的数据为参数调用callback函数。</p>
@@ -317,6 +331,8 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
                 
               </div>
               
+                <p class="note note-warning">本博客所有文章除特别声明外，转载请注明出处，侵权必究！</p>
+              
               
                 <div class="post-prevnext row">
                   <article class="post-prev col-6">
@@ -343,6 +359,38 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
               
             </div>
 
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    Fluid.utils.waitElementVisible('vcomments', function() {
+      Fluid.utils.createScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "pW7A3TwdUotMA1FFUQYGkqUq-gzGzoHsz",
+          app_key: "pdNVKx1hxoKY5XCDqXxVSjXn",
+          placeholder: "来都来了，留下点儿什么呗",
+          path: window.location.pathname,
+          avatar: "hide",
+          meta: ["nick","mail"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: false,
+          recordIP: true,
+          serverURLs: "",
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a target="_blank" href="https://valine.js.org" rel="nofollow noopener noopener">comments powered by Valine.</a>
+  </noscript>
+
+
+              </article>
             
           </article>
         </div>
@@ -400,9 +448,33 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
 
   <footer class="text-center mt-5 py-3">
   <div class="footer-content">
-     <a href="https://github.com/jweny" target="_blank" rel="nofollow noopener"><span>Copyright © 2017 ~ 2020 jweny </span></a> 
+     <a href="https://github.com/jweny" target="_blank" rel="nofollow noopener"><span>copyright jweny </span></a> 
   </div>
   
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
 
   
 
@@ -460,6 +532,8 @@ a=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs
   <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
 
 
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 

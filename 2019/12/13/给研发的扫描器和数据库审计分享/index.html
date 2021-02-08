@@ -1,0 +1,618 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" type="image/png" href="/img/avatar.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="jweny">
+  <meta name="keywords" content="">
+  <title>给研发的扫描器和数据库审计分享 - jweny`s Blog | Security &amp; Develop</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.1.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"copy_btn":true,"image_zoom":{"enable":true},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+
+<body>
+  <header style="height: 30vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>jweny`s Blog | Security & Develop</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('/img/bg/back.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="给研发的扫描器和数据库审计分享">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-12-13 15:56" pubdate>
+        2019年12月13日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">给研发的扫描器和数据库审计分享</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：几秒前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1 id="给研发的扫描器和数据库审计分享"><a href="#给研发的扫描器和数据库审计分享" class="headerlink" title="给研发的扫描器和数据库审计分享"></a>给研发的扫描器和数据库审计分享</h1><h1 id="扫描器"><a href="#扫描器" class="headerlink" title="扫描器"></a>扫描器</h1><p>web漏洞扫描器和系统漏洞扫描器：</p>
+<p><img src="/img/image-20210118102418368.png" srcset="/img/loading.gif" alt="image-20210118102418368"></p>
+<h2 id="0x01-简介"><a href="#0x01-简介" class="headerlink" title="0x01 简介"></a>0x01 简介</h2><h3 id="1-工作原理"><a href="#1-工作原理" class="headerlink" title="1. 工作原理"></a>1. 工作原理</h3><p>举个栗子，检测是否存在s2-016漏洞：</p>
+<p><img src="/img/image-20210115153542313.png" srcset="/img/loading.gif" alt="image-20210115153542313"></p>
+<p><img src="/img/image-20210115153608485.png" srcset="/img/loading.gif" alt="image-20210115153608485"></p>
+<p>在常规的Web安全测试时，需要对每个接口的不同参数做检测，工作量巨大。扫描器实现了漏洞挖掘的自动化。</p>
+<p>扫描器三要素：</p>
+<ol>
+<li>数据来源：动态爬虫/HTTP代理</li>
+<li>漏洞检测：根据漏洞检测规则，生成相应的请求，并分析响应。</li>
+<li>结果输出</li>
+</ol>
+<h3 id="2-分类"><a href="#2-分类" class="headerlink" title="2. 分类"></a><strong>2. 分类</strong></h3><p>根据数据来源的不同，又分为主动扫描器和被动扫描器。</p>
+<p>主动扫描器会主动进行爬虫，并对爬虫结果构造请求进行漏洞检测。主动扫描器不需要人工接入，通过爬虫模拟人工点击生成流量。</p>
+<p>主动扫描器：云探 / AWVS / Appscan</p>
+<p><img src="/img/image-20210115160303288.png" srcset="/img/loading.gif" alt="image-20210115160303288"></p>
+<p>被动扫描器通常以代理的形式转发请求，扫描器作为中间人，首先原样转发流量，并返回服务器响应给浏览器等客户端，通讯两端都认为自己直接与对方对话，同时记录该流量，然后修改参数并重新发送请求进行扫描。</p>
+<p>被动扫描器：Xray / w13scan</p>
+<p><img src="/img/image-20210115160341082.png" srcset="/img/loading.gif" alt="image-20210115160341082"></p>
+<h2 id="0x02-架构"><a href="#0x02-架构" class="headerlink" title="0x02 架构"></a>0x02 架构</h2><p>一个完整的扫描器应该包括以下功能：</p>
+<h3 id="1-基础库"><a href="#1-基础库" class="headerlink" title="1. 基础库"></a>1. 基础库</h3><p>常见协议的请求库：http / tcp </p>
+<p>反连平台：反连平台是测试一些无回显漏洞的方法，如SSRF、命令执行等。</p>
+<p>漏洞靶场</p>
+<h3 id="2-数据来源"><a href="#2-数据来源" class="headerlink" title="2. 数据来源"></a>2. 数据来源</h3><p>动态爬虫</p>
+<p>目录爆破</p>
+<p>子域名爆破</p>
+<h3 id="3-漏洞检测框架"><a href="#3-漏洞检测框架" class="headerlink" title="3. 漏洞检测框架"></a>3. 漏洞检测框架</h3><p><strong>规则形式</strong></p>
+<p>xml / yaml / 脚本</p>
+<p><strong>通用漏洞检测</strong></p>
+<p>sqli / xss / 命令执行 / 文件上传 / 目录穿越 / 弱口令 / 敏感文件 / url跳转等。</p>
+<p><strong>精细化漏洞检测</strong></p>
+<p>常见CMS漏洞：WordPress / Discuz! / Joomla</p>
+<p>常见开发框架漏洞：ThinkPHP / Weblogic / Struts2 / Spring / Django / Flask</p>
+<p>常见中间件漏洞：Tomcat / Nginx / IIS  </p>
+<p>协议漏洞：HTTP缓存欺骗 / 缓存污染 / 异步攻击</p>
+<p>特定漏洞：JSONP劫持等</p>
+<p><strong>Poc类型</strong></p>
+<p>Server级：各种中间件，Web 框架的漏洞。</p>
+<p>文件级：检测某个文件中是否存在漏洞，比如对应文件的备份。</p>
+<p>目录级：检测某个目录中是否存在漏洞，比如敏感信息的泄漏，路径中的 SQL 注入等。</p>
+<p>参数级：检测某个参数中是否存在漏洞，比如 SQL 注入，XSS 等。</p>
+<h3 id="4-报告框架"><a href="#4-报告框架" class="headerlink" title="4. 报告框架"></a>4. 报告框架</h3><p>前端 / 文档 / webhook</p>
+<p>优秀的扫描器应该体现漏洞复现。</p>
+<h2 id="0x03-其他"><a href="#0x03-其他" class="headerlink" title="0x03 其他"></a>0x03 其他</h2><ol>
+<li><p>爬虫：支持web2.0爬虫，执行网页中的JS</p>
+</li>
+<li><p>可视化检测规则：传统的检测规则基本一个脚本检测一个漏洞，现在的趋势是降低门槛，通过yaml / xml 等文件声明，由后端解析配置文件，发起请求，判断是否存在漏洞。</p>
+</li>
+</ol>
+<pre><code class="hljs yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">poc-yaml-groups-test</span>
+<span class="hljs-attr">groups:</span>
+  <span class="hljs-attr">win:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">method:</span> <span class="hljs-string">GET</span>
+      <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/getfile=../../../../windows/win.ini&quot;</span>
+      <span class="hljs-attr">expression:</span> <span class="hljs-string">|</span>
+        <span class="hljs-string">response.status</span> <span class="hljs-string">==</span> <span class="hljs-number">200</span>
+  <span class="hljs-attr">linux:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">method:</span> <span class="hljs-string">GET</span>
+      <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/getfile=../../../../etc/passwd&quot;</span>
+      <span class="hljs-attr">expression:</span> <span class="hljs-string">|</span>
+        <span class="hljs-string">response.status</span> <span class="hljs-string">==</span> <span class="hljs-number">200</span></code></pre>
+
+<ol start="3">
+<li>无损检测。</li>
+</ol>
+<h1 id="数据库审计"><a href="#数据库审计" class="headerlink" title="数据库审计"></a>数据库审计</h1><h2 id="0x01-简介-1"><a href="#0x01-简介-1" class="headerlink" title="0x01 简介"></a>0x01 简介</h2><h3 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a><strong>1. 定义</strong></h3><p>数据库审计是记录数据库被访问行为的日志系统。</p>
+<h3 id="2-价值"><a href="#2-价值" class="headerlink" title="2. 价值"></a>2. 价值</h3><p>访问数据库的一般有两种行为，一种是应用服务区的访问，一种是数据库运维人员的访问。</p>
+<p>因此数据库审计的主要价值在于：</p>
+<ol>
+<li><p>在发生数据库安全事件（例如数据篡改、误操作、泄露）后为事件的追责定责提供依据</p>
+</li>
+<li><p>高风险行为实时告警</p>
+</li>
+<li><p>合规要求：</p>
+<p>等保三级：</p>
+</li>
+</ol>
+<p><img src="/img/image-20210115171935350.png" srcset="/img/loading.gif" alt="image-20210115171935350"></p>
+<h3 id="3-功能"><a href="#3-功能" class="headerlink" title="3. 功能"></a>3. 功能</h3><ul>
+<li>支持主流数据库语法解析：SQL Server / Oracle / Mysql</li>
+<li>性能监控：SQL吞吐、会话监控、性能瓶颈</li>
+<li>攻击预警：对危险访问、漏洞攻击、SQL注入、敏感语句、风险操作等进行预警。</li>
+<li>事后追溯：具有基本行为审计、应用关联分析、记录全、准、可读性高。</li>
+<li>告警通知</li>
+<li>*危险行为阻断：要实现该功能需要串联在应用和DB之间，会造成性能消耗和业务风险。</li>
+</ul>
+<h2 id="0x02-架构-1"><a href="#0x02-架构-1" class="headerlink" title="0x02 架构"></a>0x02 架构</h2><h3 id="1-旁路监听"><a href="#1-旁路监听" class="headerlink" title="1. 旁路监听"></a>1. 旁路监听</h3><p>业界采取较多的形式是旁路监听。优点在于无需更改原业务拓扑，挂掉也不会影响业务。</p>
+<p>数据库节点处交换机将被保护的数据库的流量复制一份到数据库审计产品，通过采集所有数据库的访问流量，并基于SQL语法、语义的解析技术，记录下数据库的所有访问和操作行为。</p>
+<p>开源mysql流量分析：360 mysql-sniffer</p>
+<p><img src="/img/image-20210115180804179.png" srcset="/img/loading.gif" alt="image-20210115180804179"></p>
+<h3 id="2-Agent"><a href="#2-Agent" class="headerlink" title="2.  Agent"></a>2.  Agent</h3><p>还有一种是DBserver装Agent本地监听。</p>
+<p>各个 Agent 负责记录和分析对数据库的操作信息以及数据库的响应，将这些数据发送给审计中心。</p>
+<p>审计中心负责汇集所有“探针点”捕获的信息，存储并管理 log 文件。生成各种审计报表和合规性报告，同时提供接口负责与第三方系统的“整合” 处理。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，转载请注明出处，侵权必究！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/04/26/ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ThinkCMF 模板缓存漏洞分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    Fluid.utils.waitElementVisible('vcomments', function() {
+      Fluid.utils.createScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "pW7A3TwdUotMA1FFUQYGkqUq-gzGzoHsz",
+          app_key: "pdNVKx1hxoKY5XCDqXxVSjXn",
+          placeholder: "来都来了，留下点儿什么呗",
+          path: window.location.pathname,
+          avatar: "hide",
+          meta: ["nick","mail"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: false,
+          recordIP: true,
+          serverURLs: "",
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a target="_blank" href="https://valine.js.org" rel="nofollow noopener noopener">comments powered by Valine.</a>
+  </noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://github.com/jweny" target="_blank" rel="nofollow noopener"><span>copyright jweny </span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":200})
+    NProgress.start()
+    document.addEventListener('DOMContentLoaded', function() {
+      window.NProgress && window.NProgress.inc();
+    })
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+</body>
+</html>

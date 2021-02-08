@@ -15,7 +15,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="description" content="">
-  <meta name="author" content="John Doe">
+  <meta name="author" content="jweny">
   <meta name="keywords" content="">
   <title>Tomcat 内存马检测 - jweny`s Blog | Security &amp; Develop</title>
 
@@ -201,6 +201,14 @@
 
   
   
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
 </div>
 
             
@@ -225,6 +233,12 @@
           <article class="post-content mx-auto">
             <!-- SEO header -->
             <h1 style="display: none">Tomcat 内存马检测</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：17 分钟前
+                
+              </p>
             
             <div class="markdown-body">
               <h1 id="Tomcat-内存马检测"><a href="#Tomcat-内存马检测" class="headerlink" title="Tomcat 内存马检测"></a>Tomcat 内存马检测</h1><p>随着HW、攻防对抗的强度越来越高，各大厂商对于webshell的检测技术愈发成熟，对于攻击方来说，传统的文件落地webshell的生存空间越来越小，无文件webshell已经逐步成为新的研究趋势。</p>
@@ -529,6 +543,8 @@ Map&lt;String, Object&gt; catlina = (Map&lt;String, Object&gt;)((Map&lt;String,O
                 
               </div>
               
+                <p class="note note-warning">本博客所有文章除特别声明外，转载请注明出处，侵权必究！</p>
+              
               
                 <div class="post-prevnext row">
                   <article class="post-prev col-6">
@@ -555,6 +571,38 @@ Map&lt;String, Object&gt; catlina = (Map&lt;String, Object&gt;)((Map&lt;String,O
               
             </div>
 
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    Fluid.utils.waitElementVisible('vcomments', function() {
+      Fluid.utils.createScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "pW7A3TwdUotMA1FFUQYGkqUq-gzGzoHsz",
+          app_key: "pdNVKx1hxoKY5XCDqXxVSjXn",
+          placeholder: "来都来了，留下点儿什么呗",
+          path: window.location.pathname,
+          avatar: "hide",
+          meta: ["nick","mail"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: false,
+          recordIP: true,
+          serverURLs: "",
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a target="_blank" href="https://valine.js.org" rel="nofollow noopener noopener">comments powered by Valine.</a>
+  </noscript>
+
+
+              </article>
             
           </article>
         </div>
@@ -612,9 +660,33 @@ Map&lt;String, Object&gt; catlina = (Map&lt;String, Object&gt;)((Map&lt;String,O
 
   <footer class="text-center mt-5 py-3">
   <div class="footer-content">
-     <a href="https://github.com/jweny" target="_blank" rel="nofollow noopener"><span>Copyright © 2017 ~ 2020 jweny </span></a> 
+     <a href="https://github.com/jweny" target="_blank" rel="nofollow noopener"><span>copyright jweny </span></a> 
   </div>
   
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
 
   
 
@@ -672,6 +744,8 @@ Map&lt;String, Object&gt; catlina = (Map&lt;String, Object&gt;)((Map&lt;String,O
   <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
 
 
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
